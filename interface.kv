@@ -1,0 +1,709 @@
+#:import hex kivy.utils.get_color_from_hex
+
+<DrawerClickableItem@MDNavigationDrawerItem>
+    # --- RESTORED: Your Custom Colors (Hardcoded & Stable) ---
+    
+    # Text & Icon: Dark Olive
+    theme_text_color: "Custom"
+    text_color: "#4a4939"
+    
+    theme_icon_color: "Custom"
+    icon_color: "#4a4939"
+
+    # Background: Beige
+    focus_color: "#e7e4c0"
+    
+    # Ripple: Lavender
+    ripple_color: "#c5bdd2"
+    
+    # Selected: Your Brand Green
+    selected_color: "#0c6c4d"
+
+<CurrencySelectorContent>:
+    orientation: 'vertical'
+    size_hint_y: None
+    height: "400dp"
+    padding: "10dp"
+    spacing: "10dp"
+    MDTextField:
+        id: search_field
+        hint_text: "Search Currency"
+        mode: "rectangle"
+    MDScrollView:
+        MDList:
+            id: currency_scroll_list
+
+<SettingsScreen>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDTopAppBar:
+            title: "Settings"
+            elevation: 4
+            md_bg_color: app.theme_cls.primary_color
+            specific_text_color: "#ffffff"
+            left_action_items: [["menu", lambda x: app.root.ids.nav_drawer.set_state("open")]]
+
+        MDScrollView:
+            MDList:
+                padding: "20dp"
+                spacing: "10dp"
+                
+                OneLineListItem:
+                    text: "Appearance"
+                    theme_text_color: "Secondary"
+                    divider: None
+
+                TwoLineAvatarIconListItem:
+                    id: theme_label
+                    text: "Theme Color"
+                    secondary_text: "Tap to change"
+                    on_release: root.change_theme_color()
+                    IconLeftWidget:
+                        icon: "palette"
+
+                TwoLineAvatarIconListItem:
+                    text: "Dark Mode Toggle"
+                    secondary_text: "Switch Light/Dark"
+                    on_release: root.toggle_dark_mode()
+                    IconLeftWidget:
+                        icon: "theme-light-dark"
+
+                OneLineListItem:
+                    text: "Finance Defaults"
+                    theme_text_color: "Secondary"
+                    divider: None
+
+                TwoLineAvatarIconListItem:
+                    id: curr_label
+                    text: "Default Currency"
+                    secondary_text: "USD"
+                    on_release: root.change_default_currency()
+                    IconLeftWidget:
+                        icon: "currency-usd"
+
+                TwoLineAvatarIconListItem:
+                    id: rf_label
+                    text: "Risk-Free Rate (%)"
+                    secondary_text: "4.2%"
+                    on_release: root.change_rf_rate()
+                    IconLeftWidget:
+                        icon: "percent"
+
+                OneLineListItem:
+                    text: "System"
+                    theme_text_color: "Secondary"
+                    divider: None
+
+                TwoLineAvatarIconListItem:
+                    id: debug_label
+                    text: "Debug Mode"
+                    secondary_text: "Disabled"
+                    on_release: root.toggle_debug()
+                    IconLeftWidget:
+                        id: debug_icon
+                        icon: "bug-outline"
+                
+                OneLineListItem:
+                    text: "About"
+                    theme_text_color: "Secondary"
+                    divider: None
+                
+                TwoLineAvatarIconListItem:
+                    text: "FinCalc v1.0"
+                    secondary_text: "Phase 5 Complete"
+                    IconLeftWidget:
+                        icon: "information"
+
+<CurrencyScreen>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDTopAppBar:
+            title: "Global Exchange"
+            elevation: 4
+            md_bg_color: app.theme_cls.primary_color
+            specific_text_color: "#ffffff"
+            left_action_items: [["menu", lambda x: app.root.ids.nav_drawer.set_state("open")]]
+
+        MDBoxLayout:
+            orientation: 'vertical'
+            padding: "20dp"
+            spacing: "20dp"
+            pos_hint: {"top": 1}
+            adaptive_height: True
+
+            MDLabel:
+                text: "Convert Currency"
+                font_style: "H5"
+                halign: "center"
+            MDTextField:
+                id: amount_field
+                hint_text: "Amount"
+                input_filter: "float"
+                mode: "rectangle"
+                font_size: "24sp"
+                halign: "center"
+            MDBoxLayout:
+                orientation: "horizontal"
+                spacing: "20dp"
+                adaptive_height: True
+                pos_hint: {"center_x": 0.5}
+                MDRectangleFlatButton:
+                    id: btn_from
+                    text: "USD"
+                    size_hint_x: 0.4
+                    on_release: root.open_selector_from()
+                MDLabel:
+                    text: "TO"
+                    halign: "center"
+                    size_hint_x: 0.2
+                    theme_text_color: "Secondary"
+                MDRectangleFlatButton:
+                    id: btn_to
+                    text: "EUR"
+                    size_hint_x: 0.4
+                    on_release: root.open_selector_to()
+            
+            # PHASE 2 UPDATE: Added ID and disabled binding
+            MDFillRoundFlatButton:
+                id: convert_btn
+                text: "Convert Now"
+                font_size: "18sp"
+                size_hint_x: 0.8
+                pos_hint: {"center_x": 0.5}
+                md_bg_color: app.theme_cls.primary_color
+                on_release: root.convert_currency()
+                disabled: root.is_loading
+            
+            MDLabel:
+                id: result_label
+                text: "---"
+                font_style: "H4"
+                halign: "center"
+                theme_text_color: "Primary"
+            
+            # PHASE 2 UPDATE: Added Rate Label
+            MDLabel:
+                id: rate_label
+                text: ""
+                font_style: "Caption"
+                halign: "center"
+                theme_text_color: "Secondary"
+        Widget:
+
+<CryptoScreen>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDTopAppBar:
+            title: "Crypto Market"
+            elevation: 4
+            md_bg_color: app.theme_cls.primary_color
+            specific_text_color: "#ffffff"
+            left_action_items: [["menu", lambda x: app.root.ids.nav_drawer.set_state("open")]]
+        
+        MDBoxLayout:
+            size_hint_y: None
+            height: "80dp"
+            padding: "15dp"
+            spacing: "10dp"
+            MDIconButton:
+                id: currency_btn
+                icon: "currency-usd"
+                pos_hint: {"center_y": 0.5}
+                on_release: root.show_currency_selector()
+                theme_text_color: "Custom"
+                text_color: app.theme_cls.primary_color
+            MDTextField:
+                id: search_field
+                hint_text: "Search Crypto"
+                mode: "rectangle"
+                size_hint_x: 0.8
+                on_text_validate: root.search_crypto()
+            MDIconButton:
+                icon: "magnify"
+                pos_hint: {"center_y": 0.5}
+                on_release: root.search_crypto()
+                theme_text_color: "Custom"
+                text_color: app.theme_cls.primary_color
+
+        MDBoxLayout:
+            size_hint_y: None
+            height: "40dp"
+            spacing: "10dp"
+            padding: "20dp", 0
+            MDFlatButton:
+                text: "Refresh Top 10"
+                on_release: root.load_market_data()
+                pos_hint: {"center_y": 0.5}
+            MDSpinner:
+                id: loading_spinner
+                size_hint: None, None
+                size: dp(30), dp(30)
+                pos_hint: {'center_x': .5, 'center_y': .5}
+                active: False
+                color: app.theme_cls.primary_color
+        MDScrollView:
+            MDList:
+                id: crypto_list
+
+<StockScreen>:
+    name: "stock_screen"
+    MDBoxLayout:
+        orientation: 'vertical'
+        
+        MDTopAppBar:
+            title: "Stock Market"
+            elevation: 4
+            md_bg_color: app.theme_cls.primary_color
+            specific_text_color: "#ffffff"
+            left_action_items: [["menu", lambda x: app.root.ids.nav_drawer.set_state("open")]]
+
+        MDScrollView:
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                padding: "20dp"
+                spacing: "15dp"
+                
+                # 1. Search Bar
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    spacing: "10dp"
+                    adaptive_height: True
+                    
+                    MDTextField:
+                        id: ticker_field
+                        hint_text: "Ticker (e.g. AAPL)"
+                        mode: "rectangle"
+                        on_text_validate: root.search_stock()
+                        
+                    MDIconButton:
+                        icon: "magnify"
+                        md_bg_color: app.theme_cls.primary_color
+                        theme_text_color: "Custom"
+                        text_color: "white"
+                        on_release: root.search_stock()
+
+                # 2. Price Header (Fixed Sizing)
+                MDCard:
+                    orientation: "vertical"
+                    size_hint: 1, None
+                    height: "140dp"  # Increased from 100dp to fit the text
+                    padding: "15dp"
+                    spacing: "10dp"  # Added spacing so lines don't overlap
+                    radius: [15]
+                    elevation: 2
+                    
+                    MDLabel:
+                        text: "Current Price"
+                        halign: "center"
+                        theme_text_color: "Secondary"
+                        font_style: "Caption"
+                        size_hint_y: None
+                        height: "20dp"
+                    
+                    MDLabel:
+                        id: price_label
+                        text: "---"
+                        halign: "center"
+                        font_style: "H4"
+                        bold: True
+                        theme_text_color: "Primary"
+                        adaptive_height: True # Ensures the label only takes what it needs
+
+                # 3. Data List (The Original Stacked List)
+                MDCard:
+                    orientation: "vertical"
+                    size_hint: 1, None
+                    adaptive_height: True
+                    radius: [15]
+                    elevation: 1
+                    
+                    MDList:
+                        OneLineListItem:
+                            id: lbl_open
+                            text: "Open: -"
+                        OneLineListItem:
+                            id: lbl_high
+                            text: "High: -"
+                        OneLineListItem:
+                            id: lbl_low
+                            text: "Low: -"
+                        OneLineListItem:
+                            id: lbl_cap
+                            text: "Mkt Cap: -"
+                        OneLineListItem:
+                            id: lbl_pe
+                            text: "P/E Ratio: -"
+                        OneLineListItem:
+                            id: lbl_div
+                            text: "Div Yield: -"
+
+                # 4. Chart Area
+                MDCard:
+                    size_hint: 1, None
+                    height: "300dp"
+                    padding: "10dp"
+                    radius: [15]
+                    elevation: 1
+                    
+                    Image:
+                        id: chart_image
+                        source: ""
+                        allow_stretch: True
+                        keep_ratio: False 
+                        opacity: 0
+
+                # 5. Timeframe Buttons
+                MDBoxLayout:
+                    adaptive_height: True
+                    spacing: "10dp"
+                    alignment: "center"
+                    padding: [0, 10, 0, 20]
+                    
+                    MDRoundFlatButton:
+                        text: "1D"
+                        on_release: root.fetch_stock_data(ticker_field.text or "NVDA", "1d")
+                    MDRoundFlatButton:
+                        text: "1M"
+                        on_release: root.fetch_stock_data(ticker_field.text or "NVDA", "1mo")
+                    MDRoundFlatButton:
+                        text: "1Y"
+                        on_release: root.fetch_stock_data(ticker_field.text or "NVDA", "1y")
+                    MDRoundFlatButton:
+                        text: "MAX"
+                        on_release: root.fetch_stock_data(ticker_field.text or "NVDA", "max")
+
+<CalculatorScreen>:
+    name: "calculator"
+    display_text: display_text
+
+    MDBoxLayout:
+        orientation: 'vertical'
+        
+        MDTopAppBar:
+            title: "Financial Calculator"
+            elevation: 4
+            md_bg_color: app.theme_cls.primary_color
+            specific_text_color: "#ffffff"
+            left_action_items: [["menu", lambda x: app.root.ids.nav_drawer.set_state("open")]]
+
+        # --- Display Area ---
+        MDBoxLayout:
+            size_hint_y: 0.25
+            padding: "10dp"
+            MDTextField:
+                id: display_text
+                text: ""
+                font_size: "42sp"
+                halign: "right"
+                multiline: False
+                readonly: False
+                # Transparent background to match your style
+                background_color: 0,0,0,0
+                foreground_color: app.theme_cls.text_color
+
+        # --- Main Button Grid ---
+        MDGridLayout:
+            cols: 4
+            spacing: "10dp"
+            padding: "10dp"
+            size_hint_y: 0.75
+
+            # Row 1: Basic Tools
+            MDFillRoundFlatButton:
+                text: "C"
+                md_bg_color: "#E53935" # Red
+                font_size: "20sp"
+                size_hint: 1, 1
+                on_release: root.clear_display()
+            MDRoundFlatButton:
+                text: "("
+                font_size: "20sp"
+                size_hint: 1, 1
+                on_release: root.add_to_display("(")
+            MDRoundFlatButton:
+                text: ")"
+                font_size: "20sp"
+                size_hint: 1, 1
+                on_release: root.add_to_display(")")
+            MDIconButton:
+                icon: "backspace"
+                theme_text_color: "Custom"
+                text_color: "#E53935" # Red
+                user_font_size: "24sp"
+                size_hint: 1, 1
+                on_release: root.remove_last()
+
+            # Row 2: Advanced Math & Formulas
+            MDRoundFlatButton:
+                text: "^"
+                font_size: "20sp"
+                size_hint: 1, 1
+                on_release: root.add_to_display("^")
+            MDRoundFlatButton:
+                text: "√"  # Fixed from âˆš
+                font_size: "20sp"
+                size_hint: 1, 1
+                on_release: root.add_to_display("√")
+            MDRoundFlatButton:
+                text: "π"  # Fixed from Ï€
+                font_size: "20sp"
+                size_hint: 1, 1
+                on_release: root.add_to_display("π")
+            MDFillRoundFlatButton:
+                id: function_btn
+                text: "Formulas"
+                md_bg_color: app.theme_cls.primary_color
+                font_size: "20sp"
+                size_hint: 1, 1
+                on_release: root.open_formula_menu()
+
+            # Row 3: Navigation Arrows
+            MDIconButton:
+                icon: "arrow-left-bold"
+                theme_text_color: "Primary"
+                user_font_size: "24sp"
+                size_hint: 1, 1
+                on_release: root.move_cursor('left')
+            MDIconButton:
+                icon: "arrow-up-bold"
+                theme_text_color: "Primary"
+                user_font_size: "24sp"
+                size_hint: 1, 1
+                on_release: root.navigate_history('up')
+            MDIconButton:
+                icon: "arrow-down-bold"
+                theme_text_color: "Primary"
+                user_font_size: "24sp"
+                size_hint: 1, 1
+                on_release: root.navigate_history('down')
+            MDIconButton:
+                icon: "arrow-right-bold"
+                theme_text_color: "Primary"
+                user_font_size: "24sp"
+                size_hint: 1, 1
+                on_release: root.move_cursor('right')
+
+            # Row 4: Numpad
+            MDRoundFlatButton:
+                text: "7"
+                font_size: "24sp"
+                size_hint: 1, 1
+                on_release: root.add_to_display("7")
+            MDRoundFlatButton:
+                text: "8"
+                font_size: "24sp"
+                size_hint: 1, 1
+                on_release: root.add_to_display("8")
+            MDRoundFlatButton:
+                text: "9"
+                font_size: "24sp"
+                size_hint: 1, 1
+                on_release: root.add_to_display("9")
+            MDRoundFlatButton:
+                text: "÷"  # Fixed from Ã·
+                font_size: "24sp"
+                color: app.theme_cls.primary_color
+                size_hint: 1, 1
+                on_release: root.add_to_display("÷")
+
+            # Row 5: Numpad
+            MDRoundFlatButton:
+                text: "4"
+                font_size: "24sp"
+                size_hint: 1, 1
+                on_release: root.add_to_display("4")
+            MDRoundFlatButton:
+                text: "5"
+                font_size: "24sp"
+                size_hint: 1, 1
+                on_release: root.add_to_display("5")
+            MDRoundFlatButton:
+                text: "6"
+                font_size: "24sp"
+                size_hint: 1, 1
+                on_release: root.add_to_display("6")
+            MDRoundFlatButton:
+                text: "×"  # Fixed from Ã—
+                font_size: "24sp"
+                color: app.theme_cls.primary_color
+                size_hint: 1, 1
+                on_release: root.add_to_display("×")
+
+            # Row 6: Numpad
+            MDRoundFlatButton:
+                text: "1"
+                font_size: "24sp"
+                size_hint: 1, 1
+                on_release: root.add_to_display("1")
+            MDRoundFlatButton:
+                text: "2"
+                font_size: "24sp"
+                size_hint: 1, 1
+                on_release: root.add_to_display("2")
+            MDRoundFlatButton:
+                text: "3"
+                font_size: "24sp"
+                size_hint: 1, 1
+                on_release: root.add_to_display("3")
+            MDRoundFlatButton:
+                text: "-"
+                font_size: "24sp"
+                color: app.theme_cls.primary_color
+                size_hint: 1, 1
+                on_release: root.add_to_display("-")
+
+            # Row 7: Numpad & Equals
+            MDRoundFlatButton:
+                text: "."
+                font_size: "24sp"
+                size_hint: 1, 1
+                on_release: root.add_to_display(".")
+            MDRoundFlatButton:
+                text: "0"
+                font_size: "24sp"
+                size_hint: 1, 1
+                on_release: root.add_to_display("0")
+            MDFillRoundFlatButton:
+                text: "="
+                font_size: "28sp"
+                size_hint: 1, 1
+                md_bg_color: app.theme_cls.primary_color
+                on_release: root.calculate_result()
+            MDRoundFlatButton:
+                text: "+"
+                font_size: "24sp"
+                color: app.theme_cls.primary_color
+                size_hint: 1, 1
+                on_release: root.add_to_display("+")
+
+<PortfolioScreen>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        
+        MDTopAppBar:
+            title: "Portfolio Simulator"
+            elevation: 4
+            md_bg_color: app.theme_cls.primary_color
+            specific_text_color: "#ffffff"
+            left_action_items: [["menu", lambda x: app.root.ids.nav_drawer.set_state("open")]]
+            # --- NEW: Added Download Icon for CSV Export ---
+            right_action_items: [["download", lambda x: root.export_portfolio_csv()], ["plus", lambda x: root.show_add_dialog()]]
+
+        MDScrollView:
+            MDBoxLayout:
+                orientation: 'vertical'
+                padding: "20dp"
+                spacing: "20dp"
+                size_hint_y: None
+                height: self.minimum_height
+
+                MDCard:
+                    orientation: "vertical"
+                    padding: "20dp"
+                    size_hint: None, None
+                    size: "300dp", "160dp"
+                    pos_hint: {"center_x": .5}
+                    radius: [20]
+                    elevation: 2
+                    
+                    MDLabel:
+                        text: "Total Balance"
+                        halign: "center"
+                        theme_text_color: "Secondary"
+                        font_style: "H6"
+                    
+                    MDLabel:
+                        id: balance_label
+                        text: "$0.00"
+                        halign: "center"
+                        font_style: "H4"
+                        bold: True
+                    
+                    MDLabel:
+                        id: gain_label
+                        text: "+$0.00 (0.00%)"
+                        halign: "center"
+                        theme_text_color: "Custom"
+                        text_color: "#00C853"
+                        font_style: "Subtitle1"
+
+                Image:
+                    id: chart_image
+                    size_hint: 1, None
+                    height: "300dp"
+                    allow_stretch: True
+                    nocache: True
+
+                MDLabel:
+                    text: "Holdings"
+                    font_style: "H6"
+                    size_hint_y: None
+                    height: "30dp"
+                
+                MDList:
+                    id: portfolio_list
+                    size_hint_y: None
+                    height: self.minimum_height
+
+MDNavigationLayout:
+    MDScreenManager:
+        id: screen_manager
+        CalculatorScreen:
+            name: "calc_screen"
+        StockScreen:
+            name: "stock_screen"
+        CryptoScreen:
+            name: "crypto_screen"
+        CurrencyScreen:
+            name: "currency_screen"
+        SettingsScreen:
+            name: "settings_screen"
+        PortfolioScreen:
+            name:"portfolio_screen"
+
+    MDNavigationDrawer:
+        id: nav_drawer
+        radius: (0, 16, 16, 0)
+        MDNavigationDrawerMenu:
+            MDNavigationDrawerHeader:
+                title: "FinCalc"
+                text: "Select a tool"
+                spacing: "4dp"
+                padding: "12dp", 0, 0, "56dp"
+            DrawerClickableItem:
+                icon: "calculator"
+                text: "Calculator"
+                on_release:
+                    screen_manager.current = "calc_screen"
+                    nav_drawer.set_state("close")
+            DrawerClickableItem:
+                icon: "chart-line"
+                text: "Stock Market"
+                on_release:
+                    screen_manager.current = "stock_screen"
+                    nav_drawer.set_state("close")
+            DrawerClickableItem:
+                icon: "briefcase-outline"
+                text: "Portfolio Sim"
+                on_release:
+                    screen_manager.current = "portfolio_screen"
+                    nav_drawer.set_state("close")
+            DrawerClickableItem:
+                icon: "bitcoin"
+                text: "Crypto Market"
+                on_release:
+                    screen_manager.current = "crypto_screen"
+                    nav_drawer.set_state("close")
+            DrawerClickableItem:
+                icon: "cash-multiple"
+                text: "Global Exchange"
+                on_release:
+                    screen_manager.current = "currency_screen"
+                    nav_drawer.set_state("close")
+            DrawerClickableItem:
+                icon: "cog"
+                text: "Settings"
+                on_release:
+                    screen_manager.current = "settings_screen"
+                    nav_drawer.set_state("close")
