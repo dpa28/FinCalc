@@ -30,7 +30,7 @@ To keep the data accurate, the app connects to the following external services:
 If you want to run this locally, you will need Python 3 installed.
 
 1.  Clone this repository:
-    git clone https://github.com/yourusername/fincalc.git
+    git clone https://github.com/dpa28/fincalc.git
 
 2.  Navigate to the folder:
     cd fincalc
